@@ -1,0 +1,79 @@
+火影忍者 激斗忍者大战SP —— 雏田模型替换到夕日红槽位
+制作流程记录（复用井野替换方案，角色代码 ino -> hnt）
+================================================
+
+一、目标
+----------------------------------------
+把雏田(hnt)的模型放到夕日红(krn)的选人槽位上，
+战斗中的动作、招式仍然保持夕日红。
+
+二、结论
+----------------------------------------
+1. 制作完成，散装文件与 FPK 均已替换。
+2. 沿用井野/纲手版本的成熟方案，预期可在 Dolphin 正常运行。
+3. 运行时可能弹出"无效读取"报错提示，属无害误报，直接无视即可。
+   不要为此启用 Dolphin 的 MMU。
+4. 原始 wbfs 镜像全程未改动。
+
+三、最终文件位置
+----------------------------------------
+    E:\Dolphin\Dolphin-x64\mod\krn_as_hnt
+启动方式：
+    Dolphin -> 文件 -> 打开 ->
+    选 E:\Dolphin\Dolphin-x64\mod\krn_as_hnt\DATA\sys\main.dol
+    进对战模式选"夕日红"即可看到雏田外观。
+
+四、制作流程（复用井野方案，角色代码 ino -> hnt）
+----------------------------------------
+【0】环境与原料
+    - 游戏镜像：D:\Games\WII\3800805\3800805.wbfs
+    - Dolphin：E:\Dolphin\Dolphin-x64\Dolphin.exe
+    - 工具：fpk_tool.py、build_swap_hnt.py（基于 build_swap_ino.py 改）
+    - 原始游戏树底稿：D:\Games\WII\3800805\mod\game_root\
+    - 夕日红 FPK 解包：D:\Games\WII\3800805\.work\krn_fpk_orig\
+
+【1】复制原始游戏树
+    robocopy D:\Games\WII\3800805\mod\game_root
+             D:\Games\WII\3800805\mod\krn_as_hnt /E
+
+【2】替换模型（build_swap_hnt.py 自动完成）
+    a. 把 hnt 的 0000/0001/0002/0100.brres、0000/0100.brtex、
+       0000/0100.brplt 复制覆盖到 krn 散装目录同名文件；
+    b. 保留 krn 的 0000.mot 和 0000.seq 不动；
+    c. 重建 krn 的 0000.fpk：用 hnt 的
+       0000.brres / 0001.brres / 0000.brtex 替换包内同名条目，
+       其余条目（seq/mot/cam/cpu/eft/cmn）保持 krn 的。
+
+【3】运行构建脚本
+    cd D:\Games\WII\3800805
+    python build_swap_hnt.py
+
+【4】移到 E 盘 Dolphin mod 目录
+    robocopy D:\Games\WII\3800805\mod\krn_as_hnt
+             E:\Dolphin\Dolphin-x64\mod\krn_as_hnt /E /MOVE
+
+【5】在 Dolphin 测试
+    文件 -> 打开 -> 选 E:\Dolphin\Dolphin-x64\mod\krn_as_hnt\DATA\sys\main.dol
+    进对战选"夕日红"。
+
+五、文件大小核对（MD5 全部验证通过）
+----------------------------------------
+散装目录 krn_as_hnt\DATA\files\chr\krn\：
+  0000.brres  412416  <- 雏田（原夕日红 401664）
+  0001.brres  137088  <- 雏田（原夕日红  66688）
+  0002.brres  125824  <- 雏田（原夕日红  51584）
+  0100.brres  412416  <- 雏田
+  0000.brtex   88576  <- 雏田
+  0100.brtex   88576  <- 雏田
+  0000.brplt     640  <- 雏田
+  0100.brplt     640  <- 雏田
+  0000.mot    317856  <- 夕日红（未改动）
+  0000.seq    267888  <- 夕日红（未改动）
+
+FPK（fpack\chr\krn\0000.fpk）：
+  打包后大小 1269088 字节
+  包内 chr/krn/0000.brres  412416 <- 雏田
+  包内 chr/krn/0001.brres  137088 <- 雏田
+  包内 chr/krn/0000.brtex   88576 <- 雏田
+  包内 chr/krn/0000.mot    317856 <- 夕日红（未改动）
+  包内 chr/krn/0000.seq    267888 <- 夕日红（未改动）
